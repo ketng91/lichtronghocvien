@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lịch trống của học sinh - Lớp Anh thầy Kết</title>
+<style>
+  :root{
+    --green:#73a85c;
+    --green-dark:#2f6b3c;
+    --green-light:#e8f3df;
+    --cream:#fffdf5;
+    --red:#e53935;
+    --gold:#f6c84c;
+    --border:#a7c493;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:
+      radial-gradient(circle at 10% 10%, #ffffff 0 3%, transparent 4%),
+      linear-gradient(135deg,#eef8e9,#fffdf5 45%,#e7f3df);
+    color:#1f2b20;
+    min-height:100vh;
+  }
+  .page{
+    width:min(1500px,96%);
+    margin:24px auto 40px;
+  }
+  .hero{
+    position:relative;
+    text-align:center;
+    background:rgba(255,255,255,.88);
+    border:2px solid var(--border);
+    border-radius:24px;
+    padding:22px 20px 20px;
+    box-shadow:0 10px 30px rgba(55,100,50,.12);
+    overflow:hidden;
+  }
+  .hero:before,.hero:after{
+    content:"🌿";
+    position:absolute;
+    font-size:58px;
+    opacity:.18;
+    top:8px;
+  }
+  .hero:before{left:20px}
+  .hero:after{right:20px;transform:scaleX(-1)}
+  .school{
+    color:var(--green-dark);
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+  }
+  h1{
+    margin:7px 0 5px;
+    color:var(--red);
+    font-size:clamp(25px,4vw,42px);
+    line-height:1.15;
+  }
+  .subtitle{margin:0;color:#55705b;font-size:15px}
+  .student-info{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:1fr 280px;
+    gap:14px;
+    text-align:left;
+  }
+  label{
+    display:block;
+    font-weight:700;
+    margin-bottom:7px;
+    color:#31583a;
+  }
+  input,select{
+    width:100%;
+    padding:13px 15px;
+    border:2px solid #c7ddbd;
+    border-radius:13px;
+    background:#fff;
+    font-size:16px;
+    outline:none;
+  }
+  input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #dcefd5}
+  .instruction{
+    margin:18px 0 12px;
+    background:#f5faef;
+    border-left:5px solid var(--green);
+    padding:12px 15px;
+    border-radius:10px;
+    text-align:left;
+    color:#45604b;
+  }
+  .schedule-wrap{
+    overflow-x:auto;
+    background:#fff;
+    border:2px solid var(--border);
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(55,100,50,.10);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    table-layout:fixed;
+  }
+  th,td{border:1px solid #9dbb8a}
+  thead th{
+    background:#dfe7dd;
+    color:#222;
+    font-size:18px;
+    padding:12px 8px;
+    text-align:center;
+  }
+  thead th:first-child{width:165px}
+  tbody th{
+    background:#f8fbf5;
+    font-size:16px;
+    line-height:1.35;
+    padding:12px 6px;
+    text-align:center;
+    font-weight:700;
+  }
+  td{
+    height:94px;
+    padding:0;
+    background:#fff;
+    cursor:pointer;
+    transition:.18s ease;
+    position:relative;
+  }
+  tbody tr:nth-child(odd) td{background:#e7f2e1}
+  tbody tr:nth-child(odd) th{background:#e7f2e1}
+  td:hover{filter:brightness(.97)}
+  td.selected{
+    background:#bfe6a9 !important;
+    box-shadow:inset 0 0 0 4px #5c9b49;
+  }
+  td.selected:after{
+    content:"✓";
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    font-size:42px;
+    font-weight:900;
+    color:#31713c;
+  }
+  .buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin:20px 0 10px;
+    flex-wrap:wrap;
+  }
+  button{
+    border:0;
+    border-radius:14px;
+    padding:13px 24px;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.18s;
+  }
+  .submit{
+    color:#fff;
+    background:linear-gradient(135deg,#e53935,#c91f2a);
+    box-shadow:0 6px 15px rgba(229,57,53,.25);
+  }
+  .reset{background:#edf4e9;color:#416044;border:1px solid #b9d2ae}
+  button:hover{transform:translateY(-2px)}
+  .summary{
+    text-align:center;
+    font-weight:700;
+    color:#45604b;
+    min-height:24px;
+  }
+  .note{
+    text-align:center;
+    color:#718071;
+    font-size:13px;
+    margin-top:8px;
+  }
+  .success{
+    display:none;
+    margin:15px auto 0;
+    max-width:700px;
+    background:#e7f7df;
+    color:#2f6b3c;
+    border:2px solid #9ac887;
+    border-radius:14px;
+    padding:14px;
+    font-weight:700;
+  }
+  @media(max-width:700px){
+    html,body{
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
+    .page{
+      width:100%;
+      max-width:100%;
+      margin:0 auto;
+      padding:8px 6px 24px;
+    }
+    .hero{
+      width:100%;
+      padding:16px 8px;
+      border-radius:16px;
+    }
+    .hero:before,.hero:after{font-size:34px}
+    .school{
+      font-size:11px;
+      letter-spacing:1px;
+    }
+    h1{
+      font-size:22px;
+      padding:0 22px;
+    }
+    .subtitle{
+      font-size:12px;
+    }
+    .student-info{
+      grid-template-columns:1fr;
+      gap:9px;
+    }
+    label{
+      font-size:13px;
+      margin-bottom:5px;
+    }
+    input,select{
+      padding:10px 11px;
+      font-size:14px;
+      border-radius:10px;
+    }
+    .instruction{
+      font-size:12px;
+      line-height:1.45;
+      padding:9px 10px;
+      margin:12px 0 9px;
+    }
+
+    /* QUAN TRỌNG: bảng luôn vừa đúng chiều rộng điện thoại */
+    .schedule-wrap{
+      width:100%;
+      max-width:100%;
+      overflow:hidden;
+      border-radius:10px;
+      border-width:1px;
+    }
+    table{
+      width:100%;
+      min-width:0;
+      max-width:100%;
+      table-layout:fixed;
+    }
+    thead th{
+      font-size:12px;
+      padding:7px 1px;
+      height:34px;
+    }
+    thead th:first-child{
+      width:76px;
+    }
+    tbody th{
+      width:76px;
+      font-size:10px;
+      line-height:1.25;
+      padding:5px 2px;
+      word-break:normal;
+    }
+    td{
+      width:auto;
+      height:62px;
+      min-width:0;
+      padding:0;
+    }
+    td.selected{
+      box-shadow:inset 0 0 0 2px #5c9b49;
+    }
+    td.selected:after{
+      font-size:25px;
+    }
+    .summary{
+      font-size:13px;
+      margin-top:9px;
+    }
+    .buttons{
+      gap:8px;
+      margin:13px 0 7px;
+    }
+    button{
+      padding:10px 14px;
+      font-size:13px;
+      border-radius:11px;
+    }
+    .note{
+      font-size:11px;
+      line-height:1.4;
+    }
+  }
+
+  /* Điện thoại rất hẹp: 320–360px */
+  @media(max-width:380px){
+    .page{padding-left:3px;padding-right:3px}
+    .hero{padding-left:5px;padding-right:5px}
+    h1{font-size:19px}
+    .school{font-size:10px}
+    .subtitle{font-size:11px}
+    thead th{
+      font-size:10px;
+      padding:6px 0;
+    }
+    thead th:first-child,
+    tbody th{
+      width:67px;
+    }
+    tbody th{
+      font-size:9px;
+      line-height:1.2;
+    }
+    td{
+      height:56px;
+    }
+    td.selected:after{
+      font-size:22px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="school">🌱 LỚP ANH THẦY KẾT 🌱</div>
+    <h1>LỊCH TRỐNG CỦA HỌC SINH</h1>
+    <p class="subtitle">Em hãy chọn <b>TẤT CẢ</b> các ca mà em có thể đi học.</p>
+
+    <div class="student-info">
+      <div>
+        <label for="studentName">Họ và tên *</label>
+        <input id="studentName" type="text" placeholder="Nhập họ và tên..." autocomplete="name">
+      </div>
+      <div>
+        <label for="className">Lớp *</label>
+        <select id="className">
+          <option value="">-- Chọn lớp --</option>
+          <option>Anh 9</option>
+          <option>Anh 10</option>
+          <option>Anh 11A</option>
+          <option>Anh 11B</option>
+          <option>Anh 12A</option>
+          <option>Anh 12B</option>
+          <option>Anh 12C</option>
+          <option>Anh TOEIC</option>
+          <option>Anh IELTS</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="instruction">
+      💡 <b>Cách chọn:</b> bấm vào từng ô trống mà em có thể học được.
+      Ô đã chọn sẽ chuyển sang <b>màu xanh + dấu ✓</b>. Có thể chọn nhiều ca trong cùng một ngày.
+    </div>
+
+    <div class="schedule-wrap">
+      <table id="schedule">
+        <thead>
+          <tr>
+            <th>Ca</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>CN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Ca Sáng<br>7:30–9:00</th>
+            <td data-day="T2" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="T3" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="T4" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="T5" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="T6" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="T7" data-slot="Ca Sáng 7:30–9:00"></td>
+            <td data-day="CN" data-slot="Ca Sáng 7:30–9:00"></td>
+          </tr>
+          <tr>
+            <th>Ca Sáng 2<br>9:05–10:35</th>
+            <td data-day="T2" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="T3" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="T4" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="T5" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="T6" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="T7" data-slot="Ca Sáng 2 9:05–10:35"></td>
+            <td data-day="CN" data-slot="Ca Sáng 2 9:05–10:35"></td>
+          </tr>
+          <tr>
+            <th>Ca Chiều 1<br>1:30–3:00</th>
+            <td data-day="T2" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="T3" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="T4" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="T5" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="T6" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="T7" data-slot="Ca Chiều 1 1:30–3:00"></td>
+            <td data-day="CN" data-slot="Ca Chiều 1 1:30–3:00"></td>
+          </tr>
+          <tr>
+            <th>Ca Chiều 2<br>3:05–4:35</th>
+            <td data-day="T2" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="T3" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="T4" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="T5" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="T6" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="T7" data-slot="Ca Chiều 2 3:05–4:35"></td>
+            <td data-day="CN" data-slot="Ca Chiều 2 3:05–4:35"></td>
+          </tr>
+          <tr>
+            <th>Ca tối 1<br>5:40–7:10</th>
+            <td data-day="T2" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="T3" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="T4" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="T5" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="T6" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="T7" data-slot="Ca tối 1 5:40–7:10"></td>
+            <td data-day="CN" data-slot="Ca tối 1 5:40–7:10"></td>
+          </tr>
+          <tr>
+            <th>Ca tối 2<br>7:30–9:00</th>
+            <td data-day="T2" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="T3" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="T4" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="T5" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="T6" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="T7" data-slot="Ca tối 2 7:30–9:00"></td>
+            <td data-day="CN" data-slot="Ca tối 2 7:30–9:00"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="summary" id="summary">Đã chọn: 0 ca</div>
+
+    <div class="buttons">
+      <button class="reset" type="button" id="resetBtn">↺ Chọn lại</button>
+      <button class="submit" type="button" id="submitBtn">📩 GỬI LỊCH TRỐNG</button>
+    </div>
+
+    <div class="success" id="success">
+      🎉 Đã gửi lịch trống thành công! Cảm ơn em.
+    </div>
+    <div class="note">Lưu ý: Em hãy kiểm tra kỹ các ca đã chọn trước khi bấm GỬI.</div>
+  </section>
+</div>
+
+<!-- Form ẩn dùng để gửi dữ liệu tới Google Apps Script mà không cần máy chủ riêng -->
+<form id="hiddenForm" method="POST" target="submitFrame" style="display:none">
+  <input name="name" id="formName">
+  <input name="className" id="formClass">
+  <input name="schedule" id="formSchedule">
+</form>
+<iframe name="submitFrame" id="submitFrame" style="display:none"></iframe>
+
+<script>
+  // ============================================================
+  // DÁN URL WEB APP GOOGLE APPS SCRIPT CỦA THẦY VÀO ĐÂY
+  // Ví dụ: https://script.google.com/macros/s/XXXXXXXX/exec
+  // ============================================================
+  const SCRIPT_URL = "DAN_URL_GOOGLE_APPS_SCRIPT_VAO_DAY";
+
+  const cells = [...document.querySelectorAll("#schedule td")];
+  const summary = document.getElementById("summary");
+  const nameInput = document.getElementById("studentName");
+  const classInput = document.getElementById("className");
+  const success = document.getElementById("success");
+  const hiddenForm = document.getElementById("hiddenForm");
+
+  cells.forEach(cell => {
+    cell.addEventListener("click", () => {
+      cell.classList.toggle("selected");
+      updateSummary();
+    });
+  });
+
+  function getSelected(){
+    return cells.filter(c => c.classList.contains("selected")).map(c => ({
+      day: c.dataset.day,
+      slot: c.dataset.slot
+    }));
+  }
+
+  function updateSummary(){
+    summary.textContent = `Đã chọn: ${getSelected().length} ca`;
+  }
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    cells.forEach(c => c.classList.remove("selected"));
+    updateSummary();
+    success.style.display = "none";
+  });
+
+  document.getElementById("submitBtn").addEventListener("click", () => {
+    const name = nameInput.value.trim();
+    const className = classInput.value;
+    const selected = getSelected();
+
+    if(!name){
+      alert("Em hãy nhập Họ và tên.");
+      nameInput.focus();
+      return;
+    }
+    if(!className){
+      alert("Em hãy chọn Lớp.");
+      classInput.focus();
+      return;
+    }
+    if(selected.length === 0){
+      alert("Em hãy chọn ít nhất 1 ca mà em có thể học.");
+      return;
+    }
+
+    if(SCRIPT_URL === "DAN_URL_GOOGLE_APPS_SCRIPT_VAO_DAY"){
+      alert("Chưa gửi được.");
+      return;
+    }
+
+    const scheduleText = selected.map(x => `${x.day}: ${x.slot}`).join(" | ");
+
+    // Điền dữ liệu vào form ẩn rồi gửi đến Google Apps Script.
+    hiddenForm.action = SCRIPT_URL;
+    document.getElementById("formName").value = name;
+    document.getElementById("formClass").value = className;
+    document.getElementById("formSchedule").value = scheduleText;
+
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("submitBtn").textContent = "⏳ ĐANG GỬI...";
+
+    hiddenForm.submit();
+
+    // Chờ một chút rồi báo thành công cho học sinh.
+    setTimeout(() => {
+      success.style.display = "block";
+      success.scrollIntoView({behavior:"smooth", block:"center"});
+      document.getElementById("submitBtn").disabled = false;
+      document.getElementById("submitBtn").textContent = "📩 ĐÃ GỬI - GỬI LẠI";
+    }, 1200);
+  });
+
+  updateSummary();
+</script>
+</body>
+</html>
